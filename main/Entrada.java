@@ -7,8 +7,15 @@ package com.mycompany.main;
 /**
  *
  */
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 /**
@@ -28,7 +35,7 @@ public class Entrada {
     public Entrada() {
         try {
             // Se houver um arquivo input.txt, o Scanner vai ler dele.
-            this.input = new Scanner(new FileInputStream("input.txt"));
+            this.input = new Scanner(new FileInputStream("input0.txt"));
         } catch (FileNotFoundException e) {
             // Caso contrário, vai ler do teclado.
             this.input = new Scanner(System.in);
@@ -45,9 +52,20 @@ public class Entrada {
         // Imprime uma mensagem ao usuário, lê uma e retorna esta linha
         System.out.print(msg);
         String linha = this.input.nextLine();
-
+        while (linha.trim().isEmpty()) {
+            System.out.println("Linha vazia, digite novamente:");
+            linha = this.input.nextLine();
+        }
         // Ignora linhas começando com #, que vão indicar comentários no arquivo de entrada:
-        while (linha.charAt(0) == '#') linha = this.input.nextLine();
+        while (!linha.trim().isEmpty() && linha.trim().charAt(0) == '#') {
+        linha = this.input.nextLine();
+
+        while (linha.trim().isEmpty()) {
+            System.out.println("Linha vazia, digite novamente:");
+            linha = this.input.nextLine();
+        }
+    }
+
         return linha;
     }
 
@@ -57,9 +75,16 @@ public class Entrada {
      * @return O número digitado pelo usuário convertido para int
      */
     private int lerInteiro(String msg) {
-        // Imprime uma mensagem ao usuário, lê uma linha contendo um inteiro e retorna este inteiro
-        String linha = this.lerLinha(msg);
-        return Integer.parseInt(linha);
+        while(true) {
+            try {
+                // Imprime uma mensagem ao usuário, lê uma linha contendo um inteiro e retorna este inteiro
+                String linha = this.lerLinha(msg);
+                return Integer.parseInt(linha);
+            }
+            catch (NumberFormatException e) {
+                System.out.println("Erro: número inválido, digite novamente.");
+            }
+        }
     }
 
     /**
@@ -68,9 +93,16 @@ public class Entrada {
      * @return O número digitado pelo usuário convertido para double
      */
     private double lerDouble(String msg) {
-        // Imprime uma mensagem ao usuário, lê uma linha contendo um double e retorna este double
-        String linha = this.lerLinha(msg);
-        return Double.parseDouble(linha);
+        while(true){
+            try {
+                // Imprime uma mensagem ao usuário, lê uma linha contendo um double e retorna este double
+                String linha = this.lerLinha(msg);
+                return Double.parseDouble(linha);
+            }
+            catch (NumberFormatException e) {
+                    System.out.println("Erro: número inválido, digite novamente.");
+            }
+        }
     }
 
     /**
@@ -108,6 +140,14 @@ public class Entrada {
      * Lê os dados de um novo Cliente e cadastra-o no sistema.
      * @param s: Um objeto da classe Sistema
      */
+    
+    public void carregarDados(Sistema s) {
+        this.lerClientes(s);
+        this.lerGerentes(s);
+        this.lerVeiculos(s);
+        this.lerVendedores(s);
+    }
+    
     public void cadCliente(Sistema s) {
         s.listarClientes();
 
@@ -121,6 +161,7 @@ public class Entrada {
         if (s.localizarCliente(cpf) == null) { // Garantindo que o não CPF esteja duplicado.
             Cliente c = new Cliente(nome, cpf, dia, mes, ano, email);
             s.adicionar(c);
+            this.salCliente(s);
         }
         else {
             System.out.println("Erro: CPF duplicado. Cliente não adicionado.");
@@ -141,6 +182,7 @@ public class Entrada {
         if (s.localizarVendedor(cpf) == null) { // Garantindo que o não CPF esteja duplicado.
             Vendedor v = new Vendedor(nome, cpf, dia, mes, ano, salario, comissao);
             s.adicionar(v);
+            this.salVendedor(s);
         }
         else {
             System.out.println("Erro: CPF duplicado. Vendedor não adicionado.");
@@ -161,6 +203,7 @@ public class Entrada {
         if (s.localizarGerente(cpf) == null) { // Garantindo que o não CPF esteja duplicado.
             Gerente g = new Gerente(senha, nome, cpf, dia, mes, ano, salario);
             s.adicionar(g);
+            this.salGerente(s);
         }
         else {
             System.out.println("Erro: CPF duplicado. Gerente não adicionado.");
@@ -184,6 +227,7 @@ public class Entrada {
             
             Eletrico e = new Eletrico(autonomiaBat, capacidadeBat, marca, modelo, anoFab, mesFab, anoMod, valor);
             s.adicionar(e);
+            this.salEletrico(s, e);
         }
         
         else if (tipo==2) {
@@ -192,6 +236,7 @@ public class Entrada {
             
             Combustao c = new Combustao(autonomiaComb, capacidadeComb, marca, modelo, anoFab, mesFab, anoMod, valor);
             s.adicionar(c);
+            this.salCombustao(s, c);
         }
         
         else if (tipo==3) {
@@ -202,6 +247,7 @@ public class Entrada {
             
             Hibrido h = new Hibrido(autonomiaComb, capacidadeComb, autonomiaBat, capacidadeBat, marca, modelo, anoFab, mesFab, anoMod, valor);
             s.adicionar(h);
+            this.salHibrido(s, h);
         }
         
         else {
@@ -212,15 +258,31 @@ public class Entrada {
     public void cadVenda(Sistema s) {
         System.out.println("Vendedores cadastrados:");
         s.listarVendedores();
-        Vendedor vendedor = s.localizarVendedor(this.lerLinha("Digite o cpf do vendedor: "));
+        String vCPF = this.lerLinha("Digite o cpf do vendedor: ");
+        if(s.localizarVendedor(vCPF)==null) {
+            System.out.println("Vendedor inválido.");
+            return;
+        }
+        Vendedor vendedor = s.localizarVendedor(vCPF);
         
         System.out.println("Veículos cadastrados:");
         s.listarVeiculos();
-        Veiculo veiculo = s.getVeiculos().get(this.lerInteiro("Escolha um veículo pelo número: ")-1);
+        int idx = this.lerInteiro("Escolha um veículo pelo número: ")-1;
+        if (idx < 0 || idx >= s.getVeiculos().size()) {
+            System.out.println("Veículo inválido.");
+            return;
+        }
+        Veiculo veiculo = s.getVeiculos().get(idx);
+
         
         System.out.println("Clientes cadastrados:");
         s.listarClientes();
-        Cliente cliente = s.localizarCliente(this.lerLinha("Digite o CPF do cliente: "));
+        String cCPF = this.lerLinha("Digite o CPF do cliente: ");
+        if(s.localizarCliente(cCPF)==null) {
+            System.out.println("Cliente inválido.");
+            return;
+        }
+        Cliente cliente = s.localizarCliente(cCPF);
         
         double desconto = this.lerDouble("Digite o desconto (em R$): ");
         
@@ -233,6 +295,7 @@ public class Entrada {
 
         Venda v = new Venda(veiculo, cliente, desconto, d, chassi);
         s.atribuirVendaVendedor(v, vendedor);
+        this.salVendedor(s);
     }
     
     public void relatorioMensal(Sistema s) {
@@ -249,8 +312,225 @@ public class Entrada {
     }
     
     public void relatorioVendedor(Sistema s) {
-        Vendedor v = s.localizarVendedor(this.lerLinha("Digite o CPF do vendedor: "));
+        s.listarVendedores();
+        String cpf = this.lerLinha("Digite o CPF do vendedor: ");
+        if(s.localizarVendedor(cpf)==null) {
+            System.out.println("Vendedor inválido.");
+            return;
+        }
+        Vendedor v = s.localizarVendedor(cpf);
         System.out.println("RELATÓRIO DE VENDAS DO VENDEDOR:");
         s.relatorio(v);
     }
+    
+    public void salCliente(Sistema s) {
+        try {
+            FileWriter f = new FileWriter("Clientes.txt");
+            BufferedWriter b = new BufferedWriter(f);
+            
+            b.write(s.getClientes().size() + "\n");
+            
+            for (Cliente cc : s.getClientes()) {
+                cc.salvarArq(b);
+            }
+            b.close();
+        }
+        catch(IOException e) {
+            System.out.println("Erro ao salvar clientes.");
+        }
+    }
+    
+    public void lerClientes(Sistema s) {
+        try {
+            FileReader f = new FileReader("Clientes.txt");
+            BufferedReader b = new BufferedReader(f);
+            String n = b.readLine();
+            
+            if (n==null) return;
+            
+            int x = Integer.parseInt(n);
+            
+            for (int i=0; i<x; i++) {
+                s.adicionar(new Cliente(b));
+            }
+            b.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void salVendedor(Sistema s) {
+        try {
+            FileWriter f = new FileWriter("Vendedores.txt");
+            BufferedWriter b = new BufferedWriter(f);
+            
+            b.write(s.getVendedores().size() + "\n");
+            
+            Collections.sort(s.getVendedores());
+
+            for (Vendedor vv : s.getVendedores()) {
+                Collections.sort(vv.getVendidos());
+                vv.salvarArq(b);
+            }
+            b.close();
+        }
+        catch(IOException e) {
+            System.out.println("Erro ao salvar vendedores.");
+        }
+    }
+    
+    public void lerVendedores(Sistema s) {
+        try {
+            FileReader f = new FileReader("Vendedores.txt");
+            BufferedReader b = new BufferedReader(f);
+            String n = b.readLine();
+            
+            if (n==null) return;
+            
+            int x = Integer.parseInt(n);
+            
+            for (int i=0; i<x; i++) {
+                s.adicionar(new Vendedor(b));
+            }
+            b.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void salGerente(Sistema s) {
+        try {
+            FileWriter f = new FileWriter("Gerentes.txt");
+            BufferedWriter b = new BufferedWriter(f);
+            
+            b.write(s.getGerentes().size() + "\n");
+            
+            for (Gerente g : s.getGerentes()) {
+                g.salvarArq(b);
+            }
+            b.close();
+        }
+        catch(IOException e) {
+            System.out.println("Erro ao salvar gerentes.");
+        }
+    }
+    
+    public void lerGerentes(Sistema s) {
+        try {
+            FileReader f = new FileReader("Gerentes.txt");
+            BufferedReader b = new BufferedReader(f);
+            String n = b.readLine();
+            
+            if (n==null) return;
+            
+            int x = Integer.parseInt(n);
+            
+            for (int i=0; i<x; i++) {
+                s.adicionar(new Gerente(b));
+            }
+            b.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void salEletrico(Sistema s, Eletrico el) {
+        try {
+            FileWriter f = new FileWriter("Veiculos.txt", true);
+            BufferedWriter b = new BufferedWriter(f);
+            
+            b.write("ELETRICO\n");
+            el.salvarArq(b);
+            b.close();
+        }
+        catch(IOException e) {
+            System.out.println("Erro ao salvar carro elétrico.");
+        }
+    }
+    
+    public void salCombustao(Sistema s, Combustao c) {
+        try {
+            FileWriter f = new FileWriter("Veiculos.txt", true);
+            BufferedWriter b = new BufferedWriter(f);
+            
+            b.write("COMBUSTAO\n");
+            c.salvarArq(b);
+            b.close();
+        }
+        catch(IOException e) {
+            System.out.println("Erro ao salvar carro de combustão.");
+        }
+    }
+    
+    public void salHibrido(Sistema s, Hibrido h) {
+        try {
+            FileWriter f = new FileWriter("Veiculos.txt", true);
+            BufferedWriter b = new BufferedWriter(f);
+            
+            b.write("HIBRIDO\n");
+            h.salvarArq(b);
+            b.close();
+        }
+        catch(IOException e) {
+            System.out.println("Erro ao salvar carro híbrido.");
+        }
+    }
+    
+    public void lerVeiculos(Sistema s) {
+        try {
+            FileReader f = new FileReader("Veiculos.txt");
+            BufferedReader b = new BufferedReader(f);
+
+            String linha;
+            while ((linha = b.readLine()) != null) {
+                if (linha.equals("ELETRICO")) {
+                    s.adicionar(new Eletrico(b));
+                }
+                else if (linha.equals("COMBUSTAO")) {
+                    s.adicionar(new Combustao(b));
+                }
+                else {
+                    s.adicionar(new Hibrido(b));
+                }
+            }
+
+            b.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    /*
+    public void salVenda(Sistema s, Venda v) {
+        try {
+            FileWriter f = new FileWriter("Vendas.txt", true);
+            BufferedWriter b = new BufferedWriter(f);
+            
+            v.salvarArq(b);
+            b.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void lerVenda(Sistema s) {
+        try {
+            FileReader f = new FileReader("Vendas.txt");
+            BufferedReader b = new BufferedReader(f);
+
+            String linha;
+            while ((linha = b.readLine()) != null) {
+                s.adicionar(new Venda(b));
+            }
+
+            b.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }*/
 }

@@ -4,6 +4,10 @@
  */
 package com.mycompany.main;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+
 /**
  *
  */
@@ -22,6 +26,18 @@ public class Combustao extends Veiculo {
     }
 
     public String toString(){
-        return this.marca + " " + this.modelo + " " + this.anoFab + "/" + this.anoMod + " - Autonomia: " + this.getAutonomia() + "km (Combustão)";
+        return super.toString() + " - Autonomia: " + this.getAutonomia() + "km (Combustão)";
+    }
+    
+    public void salvarArq(BufferedWriter b) throws IOException   {
+        super.salvarArq(b);
+        b.write(this.autonomiaComb + "\n");
+        b.write(this.capacidadeComb + "\n");
+    }
+    
+    public Combustao(BufferedReader b) throws IOException {
+        super(b);           
+        this.autonomiaComb = Double.parseDouble(b.readLine());
+        this.capacidadeComb = Double.parseDouble(b.readLine());
     }
 }

@@ -8,6 +8,7 @@ package com.mycompany.main;
  *
  */
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Sistema {
     private ArrayList<Cliente> clientes;
@@ -15,7 +16,7 @@ public class Sistema {
     private ArrayList<Gerente> gerentes;
     private ArrayList<Veiculo> veiculos;
 
-    public Sistema() {
+    public Sistema(Entrada e) {
         this.clientes = new ArrayList<>();
         this.vendedores = new ArrayList<>();
         this.gerentes = new ArrayList<>();
@@ -37,7 +38,7 @@ public class Sistema {
     public ArrayList<Veiculo> getVeiculos() {
         return veiculos;
     }
-
+    
     public void adicionar(Cliente cliente){
         this.clientes.add(cliente);
     }
@@ -156,7 +157,6 @@ public class Sistema {
     
     public void relatorio(int ano) {
         double valor = 0;
-        
         for (Vendedor vendedor : this.getVendedores()) {
             for (Venda v : vendedor.getVendidos()) {
                 if (v.getData().getAno()==ano) {

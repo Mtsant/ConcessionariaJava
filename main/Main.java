@@ -12,8 +12,9 @@ package com.mycompany.main;
 public class Main {
     public static void main(String[] args) {
         Entrada io = new Entrada();
-        Sistema s = new Sistema();
+        Sistema s = new Sistema(io);
 
+        io.carregarDados(s);
         int op = io.menu();
 
         while (op != 0) {

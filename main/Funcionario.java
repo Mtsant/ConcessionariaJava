@@ -4,11 +4,15 @@
  */
 package com.mycompany.main;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+
 /**
  *
- * @author mbss2
+ * 
  */
-public class Funcionario extends Pessoa{
+public abstract class Funcionario extends Pessoa implements Salvavel {
     protected double salario;
 
     public Funcionario(String nome, String cpf, int dia, int mes, int ano, double salario) {
@@ -22,5 +26,15 @@ public class Funcionario extends Pessoa{
     
     public String toString() {
         return super.toString() + " - " + this.salario;
+    }
+    
+    public void salvarArq(BufferedWriter b) throws IOException   {
+        super.salvarArq(b);
+        b.write(this.salario + "\n");
+    }
+    
+    public Funcionario(BufferedReader b) throws IOException {
+        super(b);           
+        this.salario = Double.parseDouble(b.readLine());
     }
 }

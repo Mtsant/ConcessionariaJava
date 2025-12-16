@@ -4,10 +4,14 @@
  */
 package com.mycompany.main;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+
 /**
  *
  */
-public class Venda {
+public class Venda implements Comparable<Venda> {
     private Veiculo veiculo;
     private Cliente cliente;
     private double desconto;
@@ -20,6 +24,14 @@ public class Venda {
         this.desconto = desconto;
         this.d = d;
         this.chassi = chassi;
+    }
+    
+    public int compareTo(Venda v) {
+        int valor = Double.compare(v.valor(), this.valor());
+        if (valor!=0) return valor;
+        valor = this.d.compareTo(v.d);
+        if (valor!=0) return valor;
+        return valor = this.cliente.getCpf().compareTo(v.cliente.getCpf());
     }
     
     public Data getData() {
@@ -46,4 +58,26 @@ public class Venda {
         "Valor da venda: R$" + this.valor() + "\n" +
         "Data: " + this.d.toString();
     }
+    
+    public void salvarArq(BufferedWriter b) throws IOException   {
+        if (this.veiculo instanceof Combustao) b.write("COMBUSTAO\n");
+        else if (this.veiculo instanceof Eletrico) b.write("ELETRICO\n");
+        else if (this.veiculo instanceof Hibrido) b.write("HIBRIDO\n");
+        this.veiculo.salvarArq(b);
+        this.cliente.salvarArq(b);
+        b.write(this.desconto + "\n");
+        this.d.salvarArq(b);
+        b.write(chassi + "\n");
+    }
+    
+    public Venda(BufferedReader b) throws IOException {
+        String tipo = b.readLine();
+        if ("COMBUSTAO".equals(tipo)) this.veiculo = new Combustao(b);
+        else if ("ELETRICO".equals(tipo)) this.veiculo = new Eletrico(b);
+        else if ("HIBRIDO".equals(tipo)) this.veiculo = new Hibrido(b);
+        this.cliente = new Cliente(b);
+        this.desconto = Double.parseDouble(b.readLine());
+        this.d = new Data(b);
+        this.chassi = b.readLine();
+    }    
 }

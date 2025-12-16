@@ -4,9 +4,13 @@
  */
 package com.mycompany.main;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+
 /**
  *
- * @author mbss2
+ * 
  */
 public class Eletrico extends Veiculo {
     private double autonomiaBat;
@@ -23,6 +27,19 @@ public class Eletrico extends Veiculo {
     }
 
     public String toString(){
-        return this.marca + " " + this.modelo + " " + this.anoFab + "/" + this.anoMod + " - Autonomia: " + this.getAutonomia() + "km (Elétrico)";
+        return super.toString() + " - Autonomia: " + this.getAutonomia() + "km (Elétrico)";
+    }
+    
+    public void salvarArq(BufferedWriter b) throws IOException   {
+        super.salvarArq(b);
+        b.write(this.autonomiaBat + "\n");
+        b.write(this.capacidadeBat + "\n");
+    }
+    
+    public Eletrico(BufferedReader b) throws IOException {
+        super(b);           
+        this.autonomiaBat = Double.parseDouble(b.readLine());
+        this.capacidadeBat = Double.parseDouble(b.readLine());
+
     }
 }

@@ -4,10 +4,13 @@
  */
 package com.mycompany.main;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 /**
  *
  */
-public class Pessoa {
+public abstract class Pessoa implements Salvavel {
     protected String nome;
     protected String cpf;
     protected Data nasc;
@@ -43,6 +46,18 @@ public class Pessoa {
     
     public String toString() {
         return this.getNome() + " - CPF: " + this.getCpf();
+    }
+    
+    public void salvarArq(BufferedWriter b) throws IOException {
+        b.write(this.nome + "\n");
+        b.write(this.cpf + "\n");
+        this.nasc.salvarArq(b);
+    }
+       
+    public Pessoa(BufferedReader b) throws IOException {
+        this.nome = b.readLine();
+        this.cpf = b.readLine();
+        this.nasc = new Data(b);
     }
 
 }

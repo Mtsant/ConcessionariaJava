@@ -4,10 +4,14 @@
  */
 package com.mycompany.main;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+
 /**
  *
  */
-public class Veiculo {
+public abstract class Veiculo {
     protected String marca;
     protected String modelo;
     protected int anoFab;
@@ -24,15 +28,31 @@ public class Veiculo {
         this.valor = valor;
     }
     
+    public abstract int getAutonomia();
+    
     public double getValor(){
         return this.valor;
     }
     
-    public int getAutonomia(){
-        return 0;
+    public String toString() {
+        return this.marca + " " + this.modelo + " " + this.anoFab + "/" + this.anoMod;
     }
     
-    public String toString() {
-        return this.marca + " " + this.modelo + " " + this.anoFab + "/" + this.anoMod + " - Autonomia: " + this.getAutonomia();
+    public void salvarArq(BufferedWriter b) throws IOException {
+        b.write(this.marca + "\n");
+        b.write(this.modelo + "\n");
+        b.write(this.anoFab + "\n");
+        b.write(this.mesFab + "\n");
+        b.write(this.anoMod + "\n");
+        b.write(this.valor + "\n");
+    }
+       
+    public Veiculo(BufferedReader b) throws IOException {
+        this.marca = b.readLine();
+        this.modelo = b.readLine();
+        this.anoFab = Integer.parseInt(b.readLine());
+        this.mesFab = Integer.parseInt(b.readLine());
+        this.anoMod = Integer.parseInt(b.readLine());
+        this.valor = Double.parseDouble(b.readLine());
     }
 }
